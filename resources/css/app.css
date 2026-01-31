@@ -1,11 +1,212 @@
-@import 'tailwindcss';
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Pacifico&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
-@source '../../storage/framework/views/*.php';
-@source '../**/*.blade.php';
-@source '../**/*.js';
+@layer base {
+  html,
+  body {
+    @apply overflow-x-hidden;
+  }
 
-@theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+  body {
+    @apply bg-gradient-to-br from-plin-blanco via-white to-plin-amarillo/10 min-h-screen overflow-x-hidden w-full;
+    font-family: 'Quicksand', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-family: 'Pacifico', cursive;
+  }
+
+  /* Animaciones suaves para elementos decorativos */
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Animación de vuelo de abeja */
+  @keyframes bee-fly {
+    0%, 100% {
+      transform: translateY(0) translateX(0) rotate(0deg);
+    }
+    25% {
+      transform: translateY(-15px) translateX(10px) rotate(5deg);
+    }
+    50% {
+      transform: translateY(-5px) translateX(-5px) rotate(-3deg);
+    }
+    75% {
+      transform: translateY(-20px) translateX(5px) rotate(3deg);
+    }
+  }
+
+  .animate-bee {
+    animation: bee-fly 4s ease-in-out infinite;
+  }
+
+  /* Animación de flores balanceándose */
+  @keyframes flower-sway {
+    0%, 100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+
+  .animate-flower {
+    animation: flower-sway 3s ease-in-out infinite;
+    transform-origin: bottom center;
+  }
+}
+
+@layer utilities {
+  .scroll-smooth {
+    scroll-behavior: smooth;
+  }
+
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .no-select {
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Patrón hexagonal tipo panal */
+  .honeycomb-pattern {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath fill='%23FFD93D' fill-opacity='0.15' d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' /%3E%3Cpath fill='none' stroke='%23F5A623' stroke-opacity='0.1' stroke-width='1' d='M28 0L56 16L56 50L28 66L0 50L0 16L28 0'/%3E%3C/svg%3E");
+  }
+
+  /* Forma hexagonal */
+  .hexagon-shape {
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mejoras de diseño general */
+section {
+  scroll-margin-top: 5rem;
+}
+
+/* Animations Blob */
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
+
+/* Transiciones suaves entre secciones */
+section {
+  transition: all 0.3s ease-in-out;
+}
+
+/* Efecto de brillo dorado para elementos hover */
+.golden-glow:hover {
+  box-shadow: 0 0 30px rgba(255, 217, 61, 0.5);
+}
+
+/* Animación de zumbido para abejas */
+@keyframes buzz {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}
+
+.animate-buzz {
+  animation: buzz 0.1s ease-in-out infinite;
+}
+
+/* Animación de pulso suave para botones */
+@keyframes soft-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 4px 15px rgba(255, 217, 61, 0.3);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow: 0 6px 25px rgba(255, 217, 61, 0.5);
+  }
+}
+
+.animate-soft-pulse {
+  animation: soft-pulse 2s ease-in-out infinite;
+}
+
+/* Estilos para el patrón de rayas de abeja */
+.bee-stripes {
+  background: repeating-linear-gradient(
+    0deg,
+    #FFD93D,
+    #FFD93D 10px,
+    #2D2D2D 10px,
+    #2D2D2D 20px
+  );
+}
+
+/* Gradiente de miel */
+.honey-gradient {
+  background: linear-gradient(135deg, #FFD93D 0%, #F5A623 50%, #FF9800 100%);
+}
+
+/* Efecto de goteo de miel */
+@keyframes honey-drip {
+  0% {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+}
+
+.animate-honey-drip {
+  animation: honey-drip 3s ease-in-out infinite;
 }

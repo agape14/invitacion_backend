@@ -20,14 +20,18 @@ class SettingController extends Controller
             'lugar' => 'nullable|string',
             'direccion' => 'nullable|string',
             'referencia' => 'nullable|string',
+            'latitud' => 'nullable|string',
+            'longitud' => 'nullable|string',
             'mapLink' => 'nullable|string',
         ]);
 
         foreach ($data as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key],
-                ['value' => $value]
-            );
+            if ($value !== null) {
+                Setting::updateOrCreate(
+                    ['key' => $key],
+                    ['value' => $value]
+                );
+            }
         }
 
         return response()->json(['success' => true, 'message' => 'Settings updated successfully']);
