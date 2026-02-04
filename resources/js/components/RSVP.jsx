@@ -7,9 +7,10 @@ const RSVP = () => {
   const [formData, setFormData] = useState({
     nombres_completos: '',
     cantidad_adultos: 1,
-    cantidad_ninos: 0,
+    cantidad_ninos: '',
+    cantidad_ninas: '',
     edades_ninos: [],
-    requiere_cochera: false,
+    edades_ninas: [],
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -45,19 +46,48 @@ const RSVP = () => {
 
   const handleEdadNino = (index, value) => {
     const nuevasEdades = [...formData.edades_ninos];
-    nuevasEdades[index] = parseInt(value) || 0;
+    nuevasEdades[index] = value === '' ? '' : (parseInt(value) || 0);
     setFormData((prev) => ({
       ...prev,
       edades_ninos: nuevasEdades,
     }));
   };
 
+  const handleEdadNina = (index, value) => {
+    const nuevasEdades = [...formData.edades_ninas];
+    nuevasEdades[index] = value === '' ? '' : (parseInt(value) || 0);
+    setFormData((prev) => ({
+      ...prev,
+      edades_ninas: nuevasEdades,
+    }));
+  };
+
   const handleCantidadNinos = (e) => {
-    const cantidad = parseInt(e.target.value) || 0;
+    const raw = e.target.value;
+    const cantidad = raw === '' ? '' : Math.max(0, parseInt(raw) || 0);
     setFormData((prev) => ({
       ...prev,
       cantidad_ninos: cantidad,
-      edades_ninos: Array(cantidad).fill(0),
+      edades_ninos: Array(cantidad === '' ? 0 : cantidad).fill(0),
+    }));
+  };
+
+  const handleCantidadNinas = (e) => {
+    const raw = e.target.value;
+    const cantidad = raw === '' ? '' : Math.max(0, parseInt(raw) || 0);
+    setFormData((prev) => ({
+      ...prev,
+      cantidad_ninas: cantidad,
+      edades_ninas: Array(cantidad === '' ? 0 : cantidad).fill(0),
+    }));
+  };
+
+  const handleCantidadAdultos = (e) => {
+    const raw = e.target.value;
+    const valor = raw === '' ? '' : Math.max(1, parseInt(raw) || 1);
+    setFormData((prev) => ({
+      ...prev,
+      cantidad_adultos: valor,
     }));
   };
 
@@ -68,12 +98,19 @@ const RSVP = () => {
     setSuccess(false);
 
     try {
+      const cantAdultos = formData.cantidad_adultos === '' ? 1 : parseInt(formData.cantidad_adultos, 10) || 1;
+      const cantNinos = formData.cantidad_ninos === '' ? 0 : parseInt(formData.cantidad_ninos, 10) || 0;
+      const cantNinas = formData.cantidad_ninas === '' ? 0 : parseInt(formData.cantidad_ninas, 10) || 0;
+      const toEdad = (e) => (e === '' || e === undefined ? 0 : (typeof e === 'number' ? e : parseInt(e, 10) || 0));
+      const edadesNinos = Array.from({ length: cantNinos }, (_, i) => toEdad((formData.edades_ninos || [])[i]));
+      const edadesNinas = Array.from({ length: cantNinas }, (_, i) => toEdad((formData.edades_ninas || [])[i]));
       const response = await axios.post(`${API_URL}/invitados`, {
         nombres_completos: formData.nombres_completos,
-        cantidad_adultos: parseInt(formData.cantidad_adultos),
-        cantidad_ninos: parseInt(formData.cantidad_ninos),
-        edades_ninos: formData.edades_ninos.filter(edad => edad > 0),
-        requiere_cochera: formData.requiere_cochera,
+        cantidad_adultos: Math.max(1, cantAdultos),
+        cantidad_ninos: Math.max(0, cantNinos),
+        cantidad_ninas: Math.max(0, cantNinas),
+        edades_ninos: edadesNinos,
+        edades_ninas: edadesNinas,
       });
 
       if (response.data.success) {
@@ -84,9 +121,10 @@ const RSVP = () => {
         setFormData({
           nombres_completos: '',
           cantidad_adultos: 1,
-          cantidad_ninos: 0,
+          cantidad_ninos: '',
+          cantidad_ninas: '',
           edades_ninos: [],
-          requiere_cochera: false,
+          edades_ninas: [],
         });
       }
     } catch (err) {
@@ -192,16 +230,16 @@ const RSVP = () => {
                   type="number"
                   name="cantidad_adultos"
                   value={formData.cantidad_adultos}
-                  onChange={handleChange}
-                  required
+                  onChange={handleCantidadAdultos}
                   min="1"
                   className="w-full px-4 py-3 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                  placeholder="Ej: 1"
                 />
               </div>
 
               <div>
                 <label className="block text-gray-700 font-semibold mb-2">
-                  Cantidad de Niños
+                  Cantidad de Niños (masculino)
                 </label>
                 <input
                   type="number"
@@ -210,10 +248,11 @@ const RSVP = () => {
                   onChange={handleCantidadNinos}
                   min="0"
                   className="w-full px-4 py-3 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                  placeholder="0"
                 />
               </div>
 
-              {formData.cantidad_ninos > 0 && (
+              {(formData.cantidad_ninos !== '' && Number(formData.cantidad_ninos) > 0) && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
@@ -222,37 +261,67 @@ const RSVP = () => {
                   <label className="block text-gray-700 font-semibold mb-2">
                     Edades de los Niños
                   </label>
-                  {Array.from({ length: formData.cantidad_ninos }).map((_, index) => (
-                    <div key={index}>
+                  {Array.from({ length: Number(formData.cantidad_ninos) }).map((_, index) => (
+                    <div key={`nino-${index}`}>
                       <label className="block text-gray-600 text-sm mb-1">
                         Edad del niño {index + 1}
                       </label>
                       <input
                         type="number"
-                        value={formData.edades_ninos[index] || 0}
+                        value={formData.edades_ninos[index] ?? ''}
                         onChange={(e) => handleEdadNino(index, e.target.value)}
                         min="0"
                         max="18"
                         className="w-full px-4 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                        placeholder="0"
                       />
                     </div>
                   ))}
                 </motion.div>
               )}
 
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  name="requiere_cochera"
-                  id="requiere_cochera"
-                  checked={formData.requiere_cochera}
-                  onChange={handleChange}
-                  className="w-5 h-5 text-plin-amarillo border-plin-miel rounded focus:ring-plin-amarillo"
-                />
-                <label htmlFor="requiere_cochera" className="ml-3 text-gray-700">
-                  Requiere cochera
+              <div>
+                <label className="block text-gray-700 font-semibold mb-2">
+                  Cantidad de Niñas (femenino)
                 </label>
+                <input
+                  type="number"
+                  name="cantidad_ninas"
+                  value={formData.cantidad_ninas}
+                  onChange={handleCantidadNinas}
+                  min="0"
+                  className="w-full px-4 py-3 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                  placeholder="0"
+                />
               </div>
+
+              {(formData.cantidad_ninas !== '' && Number(formData.cantidad_ninas) > 0) && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="space-y-3"
+                >
+                  <label className="block text-gray-700 font-semibold mb-2">
+                    Edades de las Niñas
+                  </label>
+                  {Array.from({ length: Number(formData.cantidad_ninas) }).map((_, index) => (
+                    <div key={`nina-${index}`}>
+                      <label className="block text-gray-600 text-sm mb-1">
+                        Edad de la niña {index + 1}
+                      </label>
+                      <input
+                        type="number"
+                        value={formData.edades_ninas[index] ?? ''}
+                        onChange={(e) => handleEdadNina(index, e.target.value)}
+                        min="0"
+                        max="18"
+                        className="w-full px-4 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                        placeholder="0"
+                      />
+                    </div>
+                  ))}
+                </motion.div>
+              )}
 
               {error && (
                 <motion.div

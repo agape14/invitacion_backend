@@ -20,9 +20,11 @@ class InvitadoController extends Controller
             'nombres_completos' => 'required|string|max:255',
             'cantidad_adultos' => 'required|integer|min:1',
             'cantidad_ninos' => 'required|integer|min:0',
+            'cantidad_ninas' => 'required|integer|min:0',
             'edades_ninos' => 'nullable|array',
             'edades_ninos.*' => 'integer|min:0|max:18',
-            'requiere_cochera' => 'boolean',
+            'edades_ninas' => 'nullable|array',
+            'edades_ninas.*' => 'integer|min:0|max:18',
         ]);
 
         if ($validator->fails()) {
@@ -64,14 +66,25 @@ class InvitadoController extends Controller
                 ], 422);
             }
         }
+        if ($request->cantidad_ninas > 0) {
+            $edadesNinas = $request->edades_ninas ?? [];
+            if (count($edadesNinas) !== $request->cantidad_ninas) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'La cantidad de edades debe coincidir con la cantidad de niñas.'
+                ], 422);
+            }
+        }
 
         try {
             $invitado = Invitado::create([
                 'nombres_completos' => $request->nombres_completos,
                 'cantidad_adultos' => $request->cantidad_adultos,
                 'cantidad_ninos' => $request->cantidad_ninos,
+                'cantidad_ninas' => $request->cantidad_ninas,
                 'edades_ninos' => $request->edades_ninos ?? [],
-                'requiere_cochera' => $request->boolean('requiere_cochera', false),
+                'edades_ninas' => $request->edades_ninas ?? [],
+                'requiere_cochera' => false,
                 'ip_address' => $ipAddress,
                 'user_agent' => $userAgent,
             ]);

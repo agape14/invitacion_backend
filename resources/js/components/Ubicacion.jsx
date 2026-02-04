@@ -119,8 +119,8 @@ const Ubicacion = () => {
           <span className="inline-block py-1 px-4 rounded-full bg-plin-amarillo/30 text-plin-miel font-bold text-sm tracking-widest uppercase mb-4 shadow-sm border border-plin-amarillo/50">
             ¡No faltes!
           </span>
-          <h2 className="text-5xl md:text-6xl text-center mb-4 font-pacifico text-gray-800 drop-shadow-sm">
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-plin-amarillo to-plin-miel">¿Dónde</span> celebraremos?
+          <h2 className="text-5xl md:text-6xl text-center mb-4 font-pacifico drop-shadow-sm">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-plin-amarillo to-plin-miel">¿Dónde celebraremos?</span>
           </h2>
           <p className="text-xl md:text-2xl text-gray-600 font-quicksand max-w-2xl mx-auto">
             Ven a compartir este día especial en nuestra <br />
