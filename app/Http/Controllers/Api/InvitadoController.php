@@ -22,9 +22,11 @@ class InvitadoController extends Controller
             'cantidad_ninos' => 'required|integer|min:0',
             'cantidad_ninas' => 'required|integer|min:0',
             'edades_ninos' => 'nullable|array',
-            'edades_ninos.*' => 'integer|min:0|max:18',
+            'edades_ninos.*.valor' => 'required|integer|min:0|max:36',
+            'edades_ninos.*.unidad' => 'required|in:años,meses',
             'edades_ninas' => 'nullable|array',
-            'edades_ninas.*' => 'integer|min:0|max:18',
+            'edades_ninas.*.valor' => 'required|integer|min:0|max:36',
+            'edades_ninas.*.unidad' => 'required|in:años,meses',
         ]);
 
         if ($validator->fails()) {

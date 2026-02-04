@@ -56,6 +56,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Admin Report Token
+    |--------------------------------------------------------------------------
+    |
+    | Token secreto para acceder al reporte de invitados. Solo quien conozca
+    | este token puede ver /reporte-invitados?token=xxx
+    |
+    */
+
+    'admin_report_token' => env('ADMIN_REPORT_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Timezone
     |--------------------------------------------------------------------------
     |

@@ -44,42 +44,92 @@ const RSVP = () => {
     }));
   };
 
+  const initEdad = () => ({ valor: 0, unidad: 'años' });
+
   const handleEdadNino = (index, value) => {
-    const nuevasEdades = [...formData.edades_ninos];
-    nuevasEdades[index] = value === '' ? '' : (parseInt(value) || 0);
-    setFormData((prev) => ({
-      ...prev,
-      edades_ninos: nuevasEdades,
-    }));
+    setFormData((prev) => {
+      const edades = prev.edades_ninos || [];
+      const nuevasEdades = [...edades];
+      const actual = nuevasEdades[index] || initEdad();
+      nuevasEdades[index] = { ...actual, valor: value === '' ? '' : (parseInt(value, 10) || 0) };
+      return { ...prev, edades_ninos: nuevasEdades };
+    });
+  };
+
+  const handleUnidadEdadNino = (index, unidad) => {
+    setFormData((prev) => {
+      const edades = prev.edades_ninos || [];
+      const nuevasEdades = [...edades];
+      const actual = nuevasEdades[index] || initEdad();
+      nuevasEdades[index] = { ...actual, unidad: unidad === 'meses' ? 'meses' : 'años' };
+      return { ...prev, edades_ninos: nuevasEdades };
+    });
   };
 
   const handleEdadNina = (index, value) => {
-    const nuevasEdades = [...formData.edades_ninas];
-    nuevasEdades[index] = value === '' ? '' : (parseInt(value) || 0);
-    setFormData((prev) => ({
-      ...prev,
-      edades_ninas: nuevasEdades,
-    }));
+    setFormData((prev) => {
+      const edades = prev.edades_ninas || [];
+      const nuevasEdades = [...edades];
+      const actual = nuevasEdades[index] || initEdad();
+      nuevasEdades[index] = { ...actual, valor: value === '' ? '' : (parseInt(value, 10) || 0) };
+      return { ...prev, edades_ninas: nuevasEdades };
+    });
+  };
+
+  const handleUnidadEdadNina = (index, unidad) => {
+    setFormData((prev) => {
+      const edades = prev.edades_ninas || [];
+      const nuevasEdades = [...edades];
+      const actual = nuevasEdades[index] || initEdad();
+      nuevasEdades[index] = { ...actual, unidad: unidad === 'meses' ? 'meses' : 'años' };
+      return { ...prev, edades_ninas: nuevasEdades };
+    });
   };
 
   const handleCantidadNinos = (e) => {
-    const raw = e.target.value;
-    const cantidad = raw === '' ? '' : Math.max(0, parseInt(raw) || 0);
-    setFormData((prev) => ({
-      ...prev,
-      cantidad_ninos: cantidad,
-      edades_ninos: Array(cantidad === '' ? 0 : cantidad).fill(0),
-    }));
+    if (e.target.name !== 'cantidad_ninos') return;
+    const raw = String(e.target.value).replace(/\D/g, '').slice(0, 3); // solo dígitos, máx 3
+    const cantidad = raw === '' ? '' : Math.min(99, parseInt(raw, 10) || 0);
+    const n = cantidad === '' ? 0 : cantidad;
+    setFormData((prev) => {
+      if (raw === '' && prev.cantidad_ninos !== '' && (prev.edades_ninos || []).length > 0) {
+        return prev;
+      }
+      const currentEdades = prev.edades_ninos || [];
+      const sameLength = currentEdades.length === n;
+      const newEdades =
+        n === 0
+          ? []
+          : sameLength && n > 0
+            ? currentEdades
+            : Array(n)
+                .fill(null)
+                .map((_, i) => currentEdades[i] || initEdad());
+      return { ...prev, cantidad_ninos: cantidad, edades_ninos: newEdades };
+    });
   };
 
   const handleCantidadNinas = (e) => {
-    const raw = e.target.value;
-    const cantidad = raw === '' ? '' : Math.max(0, parseInt(raw) || 0);
-    setFormData((prev) => ({
-      ...prev,
-      cantidad_ninas: cantidad,
-      edades_ninas: Array(cantidad === '' ? 0 : cantidad).fill(0),
-    }));
+    if (e.target.name !== 'cantidad_ninas') return;
+    const raw = String(e.target.value).replace(/\D/g, '').slice(0, 3);
+    const cantidad = raw === '' ? '' : Math.min(99, parseInt(raw, 10) || 0);
+    const n = cantidad === '' ? 0 : cantidad;
+    setFormData((prev) => {
+      if (raw === '' && prev.cantidad_ninas !== '' && (prev.edades_ninas || []).length > 0) {
+        return prev;
+      }
+      const currentEdades = prev.edades_ninas || [];
+      const sameLength = currentEdades.length === n;
+      const newEdades =
+        n === 0
+          ? []
+          : sameLength && n > 0
+            ? currentEdades
+            : Array(n)
+                .fill(null)
+                .map((_, i) => currentEdades[i] || initEdad());
+      return { ...prev, cantidad_ninas: cantidad, edades_ninas: newEdades };
+    });
   };
 
   const handleCantidadAdultos = (e) => {
@@ -101,9 +151,14 @@ const RSVP = () => {
       const cantAdultos = formData.cantidad_adultos === '' ? 1 : parseInt(formData.cantidad_adultos, 10) || 1;
       const cantNinos = formData.cantidad_ninos === '' ? 0 : parseInt(formData.cantidad_ninos, 10) || 0;
       const cantNinas = formData.cantidad_ninas === '' ? 0 : parseInt(formData.cantidad_ninas, 10) || 0;
-      const toEdad = (e) => (e === '' || e === undefined ? 0 : (typeof e === 'number' ? e : parseInt(e, 10) || 0));
-      const edadesNinos = Array.from({ length: cantNinos }, (_, i) => toEdad((formData.edades_ninos || [])[i]));
-      const edadesNinas = Array.from({ length: cantNinas }, (_, i) => toEdad((formData.edades_ninas || [])[i]));
+      const toEdadObj = (item) => {
+        if (!item || typeof item !== 'object') return { valor: 0, unidad: 'años' };
+        const v = item.valor;
+        const valor = v === '' || v === undefined ? 0 : (typeof v === 'number' ? v : parseInt(v, 10) || 0);
+        return { valor, unidad: item.unidad === 'meses' ? 'meses' : 'años' };
+      };
+      const edadesNinos = Array.from({ length: cantNinos }, (_, i) => toEdadObj((formData.edades_ninos || [])[i]));
+      const edadesNinas = Array.from({ length: cantNinas }, (_, i) => toEdadObj((formData.edades_ninas || [])[i]));
       const response = await axios.post(`${API_URL}/invitados`, {
         nombres_completos: formData.nombres_completos,
         cantidad_adultos: Math.max(1, cantAdultos),
@@ -242,11 +297,12 @@ const RSVP = () => {
                   Cantidad de Niños (masculino)
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
                   name="cantidad_ninos"
                   value={formData.cantidad_ninos}
                   onChange={handleCantidadNinos}
-                  min="0"
                   className="w-full px-4 py-3 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
                   placeholder="0"
                 />
@@ -261,22 +317,40 @@ const RSVP = () => {
                   <label className="block text-gray-700 font-semibold mb-2">
                     Edades de los Niños
                   </label>
-                  {Array.from({ length: Number(formData.cantidad_ninos) }).map((_, index) => (
-                    <div key={`nino-${index}`}>
-                      <label className="block text-gray-600 text-sm mb-1">
-                        Edad del niño {index + 1}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.edades_ninos[index] ?? ''}
-                        onChange={(e) => handleEdadNino(index, e.target.value)}
-                        min="0"
-                        max="18"
-                        className="w-full px-4 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
-                        placeholder="0"
-                      />
-                    </div>
-                  ))}
+                  {Array.from({ length: Number(formData.cantidad_ninos) }).map((_, index) => {
+                    const item = formData.edades_ninos[index] || { valor: 0, unidad: 'años' };
+                    const valor = item.valor ?? '';
+                    const unidad = item.unidad || 'años';
+                    const maxVal = unidad === 'meses' ? 36 : 18;
+                    return (
+                      <div key={`nino-${index}`} className="flex flex-wrap items-end gap-2">
+                        <div className="flex-1 min-w-[80px]">
+                          <label className="block text-gray-600 text-sm mb-1">
+                            Edad del niño {index + 1}
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              value={valor}
+                              onChange={(e) => handleEdadNino(index, e.target.value)}
+                              min="0"
+                              max={maxVal}
+                              className="flex-1 px-4 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                              placeholder="0"
+                            />
+                            <select
+                              value={unidad}
+                              onChange={(e) => handleUnidadEdadNino(index, e.target.value)}
+                              className="px-3 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none bg-white min-w-[100px]"
+                            >
+                              <option value="meses">mes(es)</option>
+                              <option value="años">año(s)</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </motion.div>
               )}
 
@@ -285,11 +359,12 @@ const RSVP = () => {
                   Cantidad de Niñas (femenino)
                 </label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
                   name="cantidad_ninas"
                   value={formData.cantidad_ninas}
                   onChange={handleCantidadNinas}
-                  min="0"
                   className="w-full px-4 py-3 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
                   placeholder="0"
                 />
@@ -304,22 +379,40 @@ const RSVP = () => {
                   <label className="block text-gray-700 font-semibold mb-2">
                     Edades de las Niñas
                   </label>
-                  {Array.from({ length: Number(formData.cantidad_ninas) }).map((_, index) => (
-                    <div key={`nina-${index}`}>
-                      <label className="block text-gray-600 text-sm mb-1">
-                        Edad de la niña {index + 1}
-                      </label>
-                      <input
-                        type="number"
-                        value={formData.edades_ninas[index] ?? ''}
-                        onChange={(e) => handleEdadNina(index, e.target.value)}
-                        min="0"
-                        max="18"
-                        className="w-full px-4 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
-                        placeholder="0"
-                      />
-                    </div>
-                  ))}
+                  {Array.from({ length: Number(formData.cantidad_ninas) }).map((_, index) => {
+                    const item = formData.edades_ninas[index] || { valor: 0, unidad: 'años' };
+                    const valor = item.valor ?? '';
+                    const unidad = item.unidad || 'años';
+                    const maxVal = unidad === 'meses' ? 36 : 18;
+                    return (
+                      <div key={`nina-${index}`} className="flex flex-wrap items-end gap-2">
+                        <div className="flex-1 min-w-[80px]">
+                          <label className="block text-gray-600 text-sm mb-1">
+                            Edad de la niña {index + 1}
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              value={valor}
+                              onChange={(e) => handleEdadNina(index, e.target.value)}
+                              min="0"
+                              max={maxVal}
+                              className="flex-1 px-4 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none"
+                              placeholder="0"
+                            />
+                            <select
+                              value={unidad}
+                              onChange={(e) => handleUnidadEdadNina(index, e.target.value)}
+                              className="px-3 py-2 rounded-lg border-2 border-plin-amarillo/50 focus:border-plin-miel focus:outline-none bg-white min-w-[100px]"
+                            >
+                              <option value="meses">mes(es)</option>
+                              <option value="años">año(s)</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
                 </motion.div>
               )}
 
