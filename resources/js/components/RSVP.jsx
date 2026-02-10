@@ -92,9 +92,6 @@ const RSVP = () => {
     const cantidad = raw === '' ? '' : Math.min(99, parseInt(raw, 10) || 0);
     const n = cantidad === '' ? 0 : cantidad;
     setFormData((prev) => {
-      if (raw === '' && prev.cantidad_ninos !== '' && (prev.edades_ninos || []).length > 0) {
-        return prev;
-      }
       const currentEdades = prev.edades_ninos || [];
       const sameLength = currentEdades.length === n;
       const newEdades =
@@ -115,9 +112,6 @@ const RSVP = () => {
     const cantidad = raw === '' ? '' : Math.min(99, parseInt(raw, 10) || 0);
     const n = cantidad === '' ? 0 : cantidad;
     setFormData((prev) => {
-      if (raw === '' && prev.cantidad_ninas !== '' && (prev.edades_ninas || []).length > 0) {
-        return prev;
-      }
       const currentEdades = prev.edades_ninas || [];
       const sameLength = currentEdades.length === n;
       const newEdades =
@@ -130,6 +124,16 @@ const RSVP = () => {
                 .map((_, i) => currentEdades[i] || initEdad());
       return { ...prev, cantidad_ninas: cantidad, edades_ninas: newEdades };
     });
+  };
+
+  const handleLimpiarNinosYNinas = () => {
+    setFormData((prev) => ({
+      ...prev,
+      cantidad_ninos: '',
+      cantidad_ninas: '',
+      edades_ninos: [],
+      edades_ninas: [],
+    }));
   };
 
   const handleCantidadAdultos = (e) => {
@@ -413,6 +417,22 @@ const RSVP = () => {
                       </div>
                     );
                   })}
+                </motion.div>
+              )}
+
+              {!success && ((formData.cantidad_ninos !== '' && Number(formData.cantidad_ninos) > 0) || (formData.cantidad_ninas !== '' && Number(formData.cantidad_ninas) > 0)) && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="flex justify-center"
+                >
+                  <button
+                    type="button"
+                    onClick={handleLimpiarNinosYNinas}
+                    className="px-4 py-2 rounded-lg border-2 border-gray-300 text-gray-600 font-semibold hover:bg-gray-100 hover:border-gray-400 transition-colors text-sm"
+                  >
+                    Limpiar niños y niñas
+                  </button>
                 </motion.div>
               )}
 
