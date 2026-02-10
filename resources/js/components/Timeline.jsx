@@ -17,15 +17,15 @@ const Timeline = () => {
   const meses = [
     { numero: 0, nombre: 'Nacimiento', descripcion: 'Nuestro primer encuentro 💕' },
     { numero: 1, nombre: 'Mes 1', descripcion: 'Primeros días mágicos 🌟' },
-    { numero: 2, nombre: 'Mes 2', descripcion: 'Sonrisas y descubrimientos 😄' },
-    { numero: 3, nombre: 'Mes 3', descripcion: 'Creciendo día a día 🌻' },
+    { numero: 2, nombre: 'Mes 2', descripcion: 'Creciendo día a día 🌻' },
+    { numero: 3, nombre: 'Mes 3', descripcion: 'Sonrisas y descubrimientos 😄' },
     { numero: 4, nombre: 'Mes 4', descripcion: 'Explorando el mundo 🍯' },
     { numero: 5, nombre: 'Mes 5', descripcion: 'Más independencia 🦋' },
     { numero: 6, nombre: 'Mes 6', descripcion: 'Medio año de dulzura 🌸' },
     { numero: 7, nombre: 'Mes 7', descripcion: 'Nuevos logros 🏆' },
     { numero: 8, nombre: 'Mes 8', descripcion: 'Cada vez más activa ✨' },
     { numero: 9, nombre: 'Mes 9', descripcion: 'Personalidad única 💛' },
-    { numero: 10, nombre: 'Mes 10', descripcion: '¡Ya casi un año! (Actual) 🎉' },
+    { numero: 10, nombre: 'Mes 10', descripcion: '¡Ya casi un año! 🎉' },
     { numero: 11, nombre: 'Mes 11', descripcion: 'Próximamente... 📸' },
   ];
 
@@ -185,11 +185,14 @@ const Timeline = () => {
                             <span className="text-xs text-center mt-2 font-bold">Pronto</span>
                           </div>
                         ) : (
-                          <div className="relative w-full h-full">
+                          <div className="relative w-full h-full select-none" style={{ WebkitUserDrag: 'none', userSelect: 'none' }}>
                             <img
                               src={imageSrc}
                               alt={`Mes ${mes.numero}`}
+                              draggable={false}
+                              onContextMenu={(e) => e.preventDefault()}
                               className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                              style={{ WebkitUserDrag: 'none' }}
                               onClick={() => setSelectedImage(imageSrc)}
                               onError={(e) => {
                                 e.target.style.display = 'none';
@@ -282,8 +285,10 @@ const Timeline = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 cursor-pointer"
+            className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-md flex items-center justify-center p-2 cursor-pointer select-none"
+            style={{ WebkitUserDrag: 'none', userSelect: 'none' }}
             onClick={() => setSelectedImage(null)}
+            onContextMenu={(e) => e.preventDefault()}
           >
             <motion.div
               initial={{ scale: 0.5, opacity: 0 }}
@@ -295,8 +300,10 @@ const Timeline = () => {
               <img
                 src={selectedImage}
                 alt="Recuerdo Ampliado"
+                draggable={false}
+                onContextMenu={(e) => e.preventDefault()}
                 className="max-w-full max-h-full md:max-h-[90vh] rounded-lg shadow-2xl object-contain"
-                style={{ objectFit: 'contain' }}
+                style={{ objectFit: 'contain', WebkitUserDrag: 'none', userSelect: 'none' }}
               />
               <button
                 className="absolute top-4 right-4 md:top-8 md:right-8 text-white bg-plin-amarillo/50 hover:bg-plin-amarillo/80 rounded-full p-3 transition-colors backdrop-blur-sm"

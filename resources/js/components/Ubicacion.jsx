@@ -124,7 +124,7 @@ const Ubicacion = () => {
           </h2>
           <p className="text-xl md:text-2xl text-gray-600 font-quicksand max-w-2xl mx-auto">
             Ven a compartir este día especial en nuestra <br />
-            <span className="font-bold text-plin-miel">Fiesta de Abejita Plin Plin 🌻</span>
+            <span className="font-bold text-plin-miel">Fiesta de Abejita Plim Plim 🌻</span>
           </p>
         </motion.div>
 
