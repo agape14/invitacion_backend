@@ -12,7 +12,7 @@ class ReporteInvitadosController extends Controller
     private function validateToken(Request $request): string
     {
         $token = config('app.admin_report_token');
-        $requestToken = $request->query('token');
+        $requestToken = $request->query('token') ?? $request->input('token');
 
         if (empty($token) || $requestToken !== $token) {
             abort(403, 'No autorizado para ver este reporte.');
@@ -84,6 +84,100 @@ class ReporteInvitadosController extends Controller
             }
         }
         return implode(', ', $parts) ?: '-';
+    }
+
+    /**
+     * Crea un nuevo invitado desde el reporte admin.
+     */
+    public function store(Request $request)
+    {
+        $token = $this->validateToken($request);
+
+        $request->validate([
+            'nombres_completos' => 'required|string|max:255',
+            'cantidad_adultos' => 'required|integer|min:1',
+            'cantidad_ninos' => 'required|integer|min:0',
+            'cantidad_ninas' => 'required|integer|min:0',
+            'edades_ninos' => 'nullable|array',
+            'edades_ninos.*.valor' => 'nullable|integer|min:0|max:36',
+            'edades_ninos.*.unidad' => 'nullable|in:años,meses',
+            'edades_ninas' => 'nullable|array',
+            'edades_ninas.*.valor' => 'nullable|integer|min:0|max:36',
+            'edades_ninas.*.unidad' => 'nullable|in:años,meses',
+        ]);
+
+        $cantNinos = (int) $request->cantidad_ninos;
+        $cantNinas = (int) $request->cantidad_ninas;
+        $edadesNinos = $this->normalizarEdades($request->edades_ninos ?? [], $cantNinos);
+        $edadesNinas = $this->normalizarEdades($request->edades_ninas ?? [], $cantNinas);
+
+        Invitado::create([
+            'nombres_completos' => $request->nombres_completos,
+            'cantidad_adultos' => max(1, (int) $request->cantidad_adultos),
+            'cantidad_ninos' => $cantNinos,
+            'cantidad_ninas' => $cantNinas,
+            'edades_ninos' => $edadesNinos,
+            'edades_ninas' => $edadesNinas,
+            'requiere_cochera' => false,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+        ]);
+
+        return redirect()->route('reporte.invitados', ['token' => $token])
+            ->with('success', 'Invitado registrado correctamente.');
+    }
+
+    /**
+     * Actualiza un invitado desde el reporte admin.
+     */
+    public function update(Request $request, Invitado $invitado)
+    {
+        $token = $this->validateToken($request);
+
+        $request->validate([
+            'nombres_completos' => 'required|string|max:255',
+            'cantidad_adultos' => 'required|integer|min:1',
+            'cantidad_ninos' => 'required|integer|min:0',
+            'cantidad_ninas' => 'required|integer|min:0',
+            'edades_ninos' => 'nullable|array',
+            'edades_ninos.*.valor' => 'nullable|integer|min:0|max:36',
+            'edades_ninos.*.unidad' => 'nullable|in:años,meses',
+            'edades_ninas' => 'nullable|array',
+            'edades_ninas.*.valor' => 'nullable|integer|min:0|max:36',
+            'edades_ninas.*.unidad' => 'nullable|in:años,meses',
+        ]);
+
+        $cantNinos = (int) $request->cantidad_ninos;
+        $cantNinas = (int) $request->cantidad_ninas;
+        $edadesNinos = $this->normalizarEdades($request->edades_ninos ?? [], $cantNinos);
+        $edadesNinas = $this->normalizarEdades($request->edades_ninas ?? [], $cantNinas);
+
+        $invitado->update([
+            'nombres_completos' => $request->nombres_completos,
+            'cantidad_adultos' => max(1, (int) $request->cantidad_adultos),
+            'cantidad_ninos' => $cantNinos,
+            'cantidad_ninas' => $cantNinas,
+            'edades_ninos' => $edadesNinos,
+            'edades_ninas' => $edadesNinas,
+        ]);
+
+        return redirect()->route('reporte.invitados', ['token' => $token])
+            ->with('success', 'Invitado actualizado correctamente.');
+    }
+
+    private function normalizarEdades(?array $edades, int $cantidad): array
+    {
+        if (!is_array($edades) || $cantidad <= 0) {
+            return [];
+        }
+        $result = [];
+        for ($i = 0; $i < $cantidad; $i++) {
+            $e = $edades[$i] ?? null;
+            $valor = is_array($e) ? ((int) ($e['valor'] ?? 0)) : (is_numeric($e) ? (int) $e : 0);
+            $unidad = (is_array($e) && isset($e['unidad']) && $e['unidad'] === 'meses') ? 'meses' : 'años';
+            $result[] = ['valor' => $valor, 'unidad' => $unidad];
+        }
+        return $result;
     }
 
     /**
