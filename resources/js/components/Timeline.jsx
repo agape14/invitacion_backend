@@ -25,8 +25,8 @@ const Timeline = () => {
     { numero: 7, nombre: 'Mes 7', descripcion: 'Nuevos logros 🏆' },
     { numero: 8, nombre: 'Mes 8', descripcion: 'Cada vez más activa ✨' },
     { numero: 9, nombre: 'Mes 9', descripcion: 'Personalidad única 💛' },
-    { numero: 10, nombre: 'Mes 10', descripcion: '¡Ya casi un año! 🎉' },
-    { numero: 11, nombre: 'Mes 11', descripcion: 'Próximamente... 📸' },
+    { numero: 10, nombre: 'Mes 10', descripcion: 'Un mes de travesuras, juegos y momentos inolvidables 📸' },
+    { numero: 11, nombre: 'Mes 11', descripcion: '¡Ya casi un año! 🎉' },
   ];
 
   const [isAdmin, setIsAdmin] = useState(false);
@@ -155,7 +155,6 @@ const Timeline = () => {
           {meses.map((mes, index) => {
             const isVisible = visibleMonths.has(index);
             const theme = themeColors[index % themeColors.length];
-            const isPending = mes.numero === 11;
             const imageSrc = `/fotos_meses/mes_${mes.numero}.jpg`;
 
             return (
@@ -165,7 +164,7 @@ const Timeline = () => {
                 initial={{ opacity: 0, x: index % 2 === 0 ? -50 : 50 }}
                 animate={isVisible ? { opacity: 1, x: 0 } : {}}
                 transition={{ duration: 0.6, delay: 0.1 }}
-                className={`relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group ${isPending ? 'opacity-90' : ''}`}
+                className="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group"
               >
 
                 {/* Icono Central - Abejita o girasol */}
@@ -179,50 +178,43 @@ const Timeline = () => {
                     {/* Marco de foto */}
                     <div className="relative flex-shrink-0 group-image">
                       <div className="w-32 h-32 rounded-2xl overflow-hidden border-4 border-white shadow-md bg-white flex items-center justify-center relative">
-                        {isPending ? (
-                          <div className="flex flex-col items-center justify-center text-gray-400 bg-plin-blanco w-full h-full">
-                            <span className="text-3xl animate-bounce">⏳</span>
-                            <span className="text-xs text-center mt-2 font-bold">Pronto</span>
+                        <div className="relative w-full h-full select-none" style={{ WebkitUserDrag: 'none', userSelect: 'none' }}>
+                          <img
+                            src={imageSrc}
+                            alt={`Mes ${mes.numero}`}
+                            draggable={false}
+                            onContextMenu={(e) => e.preventDefault()}
+                            className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
+                            style={{ WebkitUserDrag: 'none' }}
+                            onClick={() => setSelectedImage(imageSrc)}
+                            onError={(e) => {
+                              e.target.style.display = 'none';
+                              e.target.nextSibling.style.display = 'flex';
+                            }}
+                          />
+                          <div className="hidden absolute inset-0 flex-col items-center justify-center bg-plin-blanco text-gray-400 pointer-events-none">
+                            <span className="text-4xl">📷</span>
                           </div>
-                        ) : (
-                          <div className="relative w-full h-full select-none" style={{ WebkitUserDrag: 'none', userSelect: 'none' }}>
-                            <img
-                              src={imageSrc}
-                              alt={`Mes ${mes.numero}`}
-                              draggable={false}
-                              onContextMenu={(e) => e.preventDefault()}
-                              className="w-full h-full object-cover cursor-pointer hover:opacity-90 transition-opacity"
-                              style={{ WebkitUserDrag: 'none' }}
-                              onClick={() => setSelectedImage(imageSrc)}
-                              onError={(e) => {
-                                e.target.style.display = 'none';
-                                e.target.nextSibling.style.display = 'flex';
-                              }}
-                            />
-                            <div className="hidden absolute inset-0 flex-col items-center justify-center bg-plin-blanco text-gray-400 pointer-events-none">
-                              <span className="text-4xl">📷</span>
-                            </div>
 
-                            <div
-                              className="absolute inset-0 bg-black/30 opacity-0 group-image-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
-                              onClick={() => setSelectedImage(imageSrc)}
-                            >
-                              <span className="text-white text-2xl">🔍</span>
-                            </div>
-
-                            {isAdmin && (
-                              <label className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow-md cursor-pointer hover:bg-gray-100 z-20">
-                                <input
-                                  type="file"
-                                  accept="image/*"
-                                  onChange={(e) => handleImageUpload(index, e)}
-                                  className="hidden"
-                                />
-                                <span className="text-sm">✏️</span>
-                              </label>
-                            )}
+                          <div
+                            className="absolute inset-0 bg-black/30 opacity-0 group-image-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer"
+                            onClick={() => setSelectedImage(imageSrc)}
+                          >
+                            <span className="text-white text-2xl">🔍</span>
                           </div>
-                        )}
+
+                          {isAdmin && (
+                            <label className="absolute bottom-1 right-1 bg-white p-1.5 rounded-full shadow-md cursor-pointer hover:bg-gray-100 z-20">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(index, e)}
+                                className="hidden"
+                              />
+                              <span className="text-sm">✏️</span>
+                            </label>
+                          )}
+                        </div>
                       </div>
                       {/* Badge del mes */}
                       <div className="absolute -top-3 -left-3 bg-plin-amarillo text-plin-negro font-bold w-10 h-10 flex items-center justify-center rounded-full shadow-lg border-2 border-white z-20 text-lg">
@@ -235,11 +227,6 @@ const Timeline = () => {
                       <p className="text-gray-700 font-quicksand font-medium leading-relaxed">
                         {mes.descripcion}
                       </p>
-                      {isPending && (
-                        <div className="mt-3 inline-block px-4 py-1 rounded-full bg-white/60 text-xs font-bold text-gray-500 border border-plin-amarillo/50">
-                          🌻 Sorpresa en camino
-                        </div>
-                      )}
                     </div>
                   </div>
                 </div>
