@@ -3,6 +3,9 @@ import { useState, useEffect } from 'react';
 import Confetti from 'react-confetti';
 import axios from 'axios';
 
+// Cerrar registro: ya estamos muy cerca de la fecha del evento.
+const REGISTRO_CERRADO = true;
+
 const RSVP = () => {
   const [formData, setFormData] = useState({
     nombres_completos: '',
@@ -250,7 +253,23 @@ const RSVP = () => {
               <span className="text-5xl">🐝</span>
             </div>
           </div>
-          {success ? (
+          {REGISTRO_CERRADO ? (
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="text-center py-6"
+            >
+              <div className="text-5xl mb-4">📋</div>
+              <h3 className="text-2xl md:text-3xl text-plin-miel mb-4 font-pacifico">
+                Registro cerrado
+              </h3>
+              <p className="text-gray-600 text-lg leading-relaxed">
+                El proceso de registro ha finalizado. Estamos muy cerca de la fecha del evento.
+                <br />
+                <span className="font-semibold text-gray-700">¡Te esperamos en la celebración! 🐝</span>
+              </p>
+            </motion.div>
+          ) : success ? (
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
